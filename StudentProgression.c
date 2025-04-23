@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 #include <string.h>
 
@@ -29,13 +28,13 @@ void registerStudent(struct Student s[], struct Attendance a[], int *n) {
     printf("\n---[Student Registration]---\n");
 
     printf("\nEnter Student ID:\n ");
-    scanf("%s", &s[*n].StudentID);
+    scanf(" %19[^\n]", s[*n].StudentID);
     
     printf("\nEnter Name:\n ");
-    scanf("%s", s[*n].name);  
+    scanf(" %[^\n]", s[*n].name);  
 
     printf("\nEnter  Course:\n ");
-    scanf("%s", s[*n].course);  
+    scanf(" %[^\n]", s[*n].course);  
 
     printf("\nEnter Academic Year:\n ");
     scanf("%d", &s[*n].year);
@@ -77,7 +76,7 @@ void registerExam(struct Student s[], int n ){
                 return;
             }
 
-            printf("Enter exam type:\n 1. Special\n 2. Supplementary\n 3. Retake\n");
+            printf("Enter exam type:\n 1. Special\n 2. Supplementary\n 3. Retake\n Choice: ");
             scanf("%d", &choice);
 
             switch (choice) {
@@ -115,11 +114,11 @@ void markAttendance(struct Attendance a[], int n) {
 
     char courseInput[100];
     printf("\nEnter Course Name to Mark Attendance: ");
-    scanf("%s", courseInput);
+    scanf(" %[^\n]", courseInput);
 
     int found = 0;
     for (int i = 0; i < n; i++) {
-        if (strcmp(courseInput[1], a[i].course[1])== 0) {
+        if (strcmp(courseInput, a[i].course)== 0) {
             printf("%s %s (%s) 1=Yes, 0=No: ", a[i].StudentID,a[i].name, a[i].course);
             scanf("%d", &a[i].present);
             found = 1;
@@ -140,7 +139,7 @@ void showAttendance(struct Attendance a[], int n) {
 
     char courseInput[100];
     printf("\nEnter Course Name to View Attendance: ");
-    scanf("%s", courseInput);
+    scanf(" %[^\n]", courseInput);
 
     int found = 0;
     printf("\nAttendance Report for %s:\n", courseInput);
@@ -165,7 +164,7 @@ void showStudents(struct Student s[], int n) {
 
     char courseInput[100];
     printf("\nEnter Course Name : ");
-    scanf("%s", courseInput);
+    scanf(" %[^\n]", courseInput);
 
     int found = 0;
     printf("\nStudents in %s:\n", courseInput);
@@ -188,7 +187,7 @@ int main() {
     printf("---[Main Menu]---");
 
     while (1) {
-        printf("\n1. Student\n2. Lecturer\n3. Exit\nEnter your choice:\n ");
+        printf("\n1. Student\n2. Lecturer\n3. Exit\nEnter your choice: ");
         scanf("%d", &ch);
 
         if (ch == 1) {

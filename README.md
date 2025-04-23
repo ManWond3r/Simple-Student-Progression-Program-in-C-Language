@@ -1,47 +1,48 @@
 #include <stdio.h>
-
+#include <string.h>
 
 
 // --- Structures ---
 struct Student {
-    int StudentID;
-    char name[50];
-    char course[50];
+    char StudentID[20];
+    char name[100];
+    char course[100];
     int year;
     int semester;
     float fees;
 };
 struct Exam{
-    int StudentID;
+    char StudentID[20];
     char type[20];
 };
 
 struct Attendance {
     int present;
-    char name[50];
-    char course[50];
+    char name[100];
+    char course[100];
+    char StudentID[20];
 };
 
-//--- Register Student ---
+// --- Register Student ---
 void registerStudent(struct Student s[], struct Attendance a[], int *n) {
     printf("\n---[Student Registration]---\n");
-    
-    printf("Enter Student ID: ");
-    scanf("%d", &s[*n].StudentID);
-    
-    printf("\nEnter Name(no spacing): ");
-    scanf("%s", s[*n].name);  // Reads name without spaces
 
-    printf("Enter Course(no spacing): ");
-    scanf("%s", s[*n].course);  // Reads course without spaces
+    printf("\nEnter Student ID:\n ");
+    scanf(" %19[^\n]", s[*n].StudentID);
+    
+    printf("\nEnter Name:\n ");
+    scanf(" %[^\n]", s[*n].name);  
 
-    printf("Enter Academic Year: ");
+    printf("\nEnter  Course:\n ");
+    scanf(" %[^\n]", s[*n].course);  
+
+    printf("\nEnter Academic Year:\n ");
     scanf("%d", &s[*n].year);
 
-    printf("Enter Semester: ");
+    printf("\nEnter Semester:\n ");
     scanf("%d", &s[*n].semester);
 
-    printf("Enter Fees Paid: ");
+    printf("\nEnter Fees Paid:\n ");
     scanf("%f", &s[*n].fees);
 
     if(s[*n].fees < 50000){
@@ -49,31 +50,60 @@ void registerStudent(struct Student s[], struct Attendance a[], int *n) {
         return;
     }
     // Copy student info to attendance record 
-    for (int i = 0; i < 50; i++) {
-        a[*n].name[i] = s[*n].name[i];
-        a[*n].course[i] = s[*n].course[i];
-    }
-    a[*n].present = 0; // Default: Absent
+    strcpy(a[*n].name, s[*n].name);
+    strcpy(a[*n].course, s[*n].course);
+    strcpy(a[*n].StudentID, s[*n].StudentID);
+    a[*n].present = 0;  
 
     printf("\nStudent Registered Successfully!\n");
     (*n)++;
 }
+
 // --- Register for Examination ---
-void registerExam( ){
+void registerExam(struct Student s[], int n ){
     printf("\n---Exam Registration---\n");
-    
+
     struct Exam e;
-    printf("Enter Student ID: ");
-    scanf("%d", &e.StudentID);
-    
-    printf("Select Exam Type:\n 1.Special\n2.Supplementary\n3.Retake\n ");
-    scanf("%d", e.type);
-    
-    printf("Exam Registered Successfully!\n");
+    int choice;
+
+    printf("\nEnter Student ID:\n ");
+    scanf("%s", &e.StudentID);
+
+    for(int i = 0; i < n; i++) {
+     if(strcmp(s[i].StudentID, e.StudentID)== 0) {
+             if(s[i].fees < 50000) {
+                printf("Registration failed! Insufficient fees.\n");
+                return;
+            }
+
+            printf("Enter exam type:\n 1. Special\n 2. Supplementary\n 3. Retake\n Choice: ");
+            scanf("%d", &choice);
+
+            switch (choice) {
+                case 1:
+                    strcpy(e.type, "Special");
+                    break;
+                case 2:
+                    strcpy(e.type, "Supplementary");
+                    break;
+                case 3:
+                    strcpy(e.type, "Retake");
+                    break;
+                default:
+                    printf("Invalid Choice\n");
+            }
+
+            printf("Exam Registration Successful!\n");
+            return;
+            
+
+        }
+    }
+    printf("Student ID not found!\n");
+    printf("Exam Registration Failed!\n");
 }
 
 // --- Mark Attendance (Only for Entered Course) ---
-
 void markAttendance(struct Attendance a[], int n) {
     printf("\n---[Mark Attendance]---\n");
 
@@ -82,14 +112,14 @@ void markAttendance(struct Attendance a[], int n) {
         return;
     }
 
-    char courseInput[50];
+    char courseInput[100];
     printf("\nEnter Course Name to Mark Attendance: ");
-    scanf("%s", courseInput);
+    scanf(" %[^\n]", courseInput);
 
     int found = 0;
     for (int i = 0; i < n; i++) {
-        if (courseInput[1] == a[i].course[1]) {
-            printf("%s (%s) 1=Yes, 0=No: ", a[i].name, a[i].course);
+        if (strcmp(courseInput, a[i].course)== 0) {
+            printf("%s %s (%s) 1=Yes, 0=No: ", a[i].StudentID,a[i].name, a[i].course);
             scanf("%d", &a[i].present);
             found = 1;
         }
@@ -100,23 +130,21 @@ void markAttendance(struct Attendance a[], int n) {
 }
 
 // --- View Attendance Report ---
-
 void showAttendance(struct Attendance a[], int n) {
     printf("\n---[ Attendance ]---\n");
-    
     if (n == 0) {
         printf("No attendance records available!\n");
         return;
     }
 
-    char courseInput[50];
+    char courseInput[100];
     printf("\nEnter Course Name to View Attendance: ");
-    scanf("%s", courseInput);
+    scanf(" %[^\n]", courseInput);
 
     int found = 0;
     printf("\nAttendance Report for %s:\n", courseInput);
     for (int i = 0; i < n; i++) {
-        if (courseInput[0] == a[i].course[0]) {  // Match first letter only
+        if(strcmp(a[i].course, courseInput) == 0) {  // Compare course names
             printf("%s - %s\n", a[i].name, a[i].present ? "Present" : "Absent");
             found = 1;
         }
@@ -127,23 +155,21 @@ void showAttendance(struct Attendance a[], int n) {
 }
 
 // --- Show Students Per Course ---
-
 void showStudents(struct Student s[], int n) {
-
     printf("\n---[ View Students Per Course ]---\n");
     if (n == 0) {
         printf("No students registered yet!\n");
         return;
     }
 
-    char courseInput[50];
+    char courseInput[100];
     printf("\nEnter Course Name : ");
-    scanf("%s", courseInput);
+    scanf(" %[^\n]", courseInput);
 
     int found = 0;
     printf("\nStudents in %s:\n", courseInput);
     for (int i = 0; i < n; i++) {
-        if (courseInput[0] == s[i].course[0]) {  // Match first letter only
+        if (strcmp(s[i].course, courseInput) == 0) {  // Compare course names
             printf("%s\n", s[i].name);
             found = 1;
         }
@@ -161,11 +187,11 @@ int main() {
     printf("---[Main Menu]---");
 
     while (1) {
-        printf("\n1. Student\n2. Lecturer\n3. Exit\nEnter your choice:\n\n ");
+        printf("\n1. Student\n2. Lecturer\n3. Exit\nEnter your choice: ");
         scanf("%d", &ch);
 
         if (ch == 1) {
-            printf("\n1. Register\n2. Register for Examination\n3. View Attendance\nEnter your choice: ");
+            printf("\n1. Register for Semester\n2. Register for Examination\n3. View Attendance\nEnter your choice: ");
             scanf("%d", &ch);
 
             switch (ch)
@@ -174,7 +200,7 @@ int main() {
                 registerStudent( s, a, &n);
                  break;
             case 2:
-                registerExam();
+                registerExam(s, n);
                 break;
             
             default:
@@ -200,3 +226,4 @@ int main() {
     }
     return 0;
 }
+
